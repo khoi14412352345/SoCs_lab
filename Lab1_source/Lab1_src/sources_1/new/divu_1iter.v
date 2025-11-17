@@ -21,38 +21,37 @@
 
 
 module divu_1iter (
-    input  [31:0] dividend_in,
-    input  [31:0] divisor,
-    input  [31:0] quotient_in,
-    input  [31:0] remainder_in,
+    input  [31:0] i_dividend_in,
+    input  [31:0] i_divisor,
+    input  [31:0] i_quotient_in,
+    input  [31:0] i_remainder_in,
 
-    output [31:0] dividend_out,
-    output [31:0] quotient_out,
-    output [31:0] remainder_out
+    output [31:0] o_dividend_out,
+    output [31:0] o_quotient_out,
+    output [31:0] o_remainder_out
 );
+
     // remainder' = (remainder << 1) | MSB(dividend)
     wire [31:0] rem_shift;
-    assign rem_shift = {remainder_in[30:0], dividend_in[31]};
+    assign rem_shift = {i_remainder_in[30:0], i_dividend_in[31]};
 
     // dividend' = dividend << 1
-    assign dividend_out = {dividend_in[30:0], 1'b0};
+    assign o_dividend_out = {i_dividend_in[30:0], 1'b0};
 
     // so sánh remainder' với divisor
     wire rem_lt_div;
-    assign rem_lt_div = (rem_shift < divisor);
+    assign rem_lt_div = (rem_shift < i_divisor);
 
-    // nếu rem_shift < divisor:
-    //    quotient'  = quotient << 1
-    //    remainder' = rem_shift
-    // ngược lại:
-    //    quotient'  = (quotient << 1) | 1
-    //    remainder' = rem_shift - divisor
-    assign quotient_out  = rem_lt_div ?
-                           (quotient_in << 1) :
-                           ((quotient_in << 1) | 32'h0000_0001);
+    // quotient' = shift left, thêm bit 0 hoặc 1 tùy theo so sánh
+    assign o_quotient_out =
+        rem_lt_div ?
+            (i_quotient_in << 1) :
+            ((i_quotient_in << 1) | 32'h1);
 
-    assign remainder_out = rem_lt_div ?
-                           rem_shift :
-                           (rem_shift - divisor);
+    // remainder' = rem_shift hoặc rem_shift - divisor
+    assign o_remainder_out =
+        rem_lt_div ?
+            rem_shift :
+            (rem_shift - i_divisor);
 
 endmodule
