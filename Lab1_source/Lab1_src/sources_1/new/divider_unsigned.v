@@ -21,18 +21,19 @@
 
 
 module divider_unsigned (
-    input  [31:0] dividend,
-    input  [31:0] divisor,
-    output [31:0] quotient,
-    output [31:0] remainder
+    input  [31:0] i_dividend,     // was: dividend
+    input  [31:0] i_divisor,      // was: divisor
+    output [31:0] o_quotient,     // was: quotient
+    output [31:0] o_remainder     // was: remainder
 );
-    // Mảng tín hiệu cho 33 điểm (0..32)
+
+    // Internal stage arrays (0..32)
     wire [31:0] dividend_stage  [0:32];
     wire [31:0] quotient_stage  [0:32];
     wire [31:0] remainder_stage [0:32];
 
-    // giá trị ban đầu (trước iteration #0)
-    assign dividend_stage[0]  = dividend;
+    // Initial values before iteration 0
+    assign dividend_stage[0]  = i_dividend;
     assign quotient_stage[0]  = 32'b0;
     assign remainder_stage[0] = 32'b0;
 
@@ -41,7 +42,7 @@ module divider_unsigned (
         for (i = 0; i < 32; i = i + 1) begin : iter
             divu_1iter u_iter (
                 .dividend_in  (dividend_stage[i]),
-                .divisor      (divisor),
+                .divisor      (i_divisor),
                 .quotient_in  (quotient_stage[i]),
                 .remainder_in (remainder_stage[i]),
 
@@ -52,8 +53,8 @@ module divider_unsigned (
         end
     endgenerate
 
-    // kết quả cuối cùng sau 32 vòng
-    assign quotient  = quotient_stage[32];
-    assign remainder = remainder_stage[32];
+    // Final results after 32 rounds
+    assign o_quotient  = quotient_stage[32];
+    assign o_remainder = remainder_stage[32];
 
 endmodule
